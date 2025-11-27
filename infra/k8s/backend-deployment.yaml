@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: week1-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: week1-backend
+  template:
+    metadata:
+      labels:
+        app: week1-backend
+    spec:
+      containers:
+        - name: backend
+          image: <YOUR_ACR_URL>/week1-backend:latest
+          ports:
+            - containerPort: 3000
