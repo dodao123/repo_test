@@ -202,7 +202,7 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md#-troubleshooting) for common issues and solu
 
 ## 👥 Contributors
 
-Week 1 Project - MindX
+DAO DUC DO - Week 1 Project TESTING - MindX
 
 ## 📄 License
 
