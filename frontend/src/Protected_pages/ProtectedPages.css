@@ -1,0 +1,131 @@
+.protected-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.protected-content {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 3rem;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.protected-content h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.protected-content > p {
+  margin: 0 0 2rem 0;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.user-info {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.user-info h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.info-item {
+  margin-bottom: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.info-item strong {
+  color: rgba(255, 255, 255, 0.87);
+  margin-right: 0.5rem;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.test-button,
+.logout-button {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.test-button {
+  background-color: #646cff;
+  color: white;
+}
+
+.test-button:hover {
+  background-color: #535bf2;
+  transform: translateY(-1px);
+}
+
+.logout-button {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.87);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.logout-button:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+@media (prefers-color-scheme: light) {
+  .protected-content {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .protected-content h1 {
+    color: #213547;
+  }
+
+  .protected-content > p {
+    color: #666;
+  }
+
+  .user-info {
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  .user-info h2 {
+    color: #213547;
+  }
+
+  .info-item {
+    color: #666;
+  }
+
+  .info-item strong {
+    color: #213547;
+  }
+
+  .logout-button {
+    background-color: #f9f9f9;
+    color: #213547;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+  }
+
+  .logout-button:hover {
+    background-color: #e9e9e9;
+  }
+}
+
