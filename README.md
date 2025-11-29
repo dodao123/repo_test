@@ -203,8 +203,3 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md#-troubleshooting) for common issues and solu
 ## 👥 Contributors
 
 DAO DUC DO - Week 1 Project TESTING - MindX
-
-## 📄 License
-
-This project is for educational purposes.
-
