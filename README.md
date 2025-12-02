@@ -1,205 +1,317 @@
-# Week 1: Fullstack Application on Azure Cloud
+# Acceptance Criteria Evaluation - Week 2: Metrics Setup
 
-## 📋 Project Overview
+## 📋 Week 2 Objectives
 
-This is a fullstack TypeScript application deployed on Azure Cloud with:
-- **Backend**: Node.js/Express API with OpenID Connect authentication
-- **Frontend**: React SPA with TypeScript
-- **Infrastructure**: Azure Kubernetes Service (AKS) with Azure Front Door
-- **Authentication**: OpenID Connect via MindX Identity Provider
+**Production and Product Metrics setup**
 
-## 🌐 Live Application
+For the app from week 1:
+- ✅ Setup Production Metrics using Azure App Insights
+- ✅ Setup Product Metrics using Google Analytics
 
-- **URL**: https://dodd-api-endpoint-a7b8hvcdc9fugjbr.z03.azurefd.net
-- **Backend API**: https://dodd-api-endpoint-a7b8hvcdc9fugjbr.z03.azurefd.net/api/*
-- **Health Check**: https://dodd-api-endpoint-a7b8hvcdc9fugjbr.z03.azurefd.net/api/health
+---
 
-## ✨ Features
+## ✅ Acceptance Criteria Checklist
 
-- ✅ **HTTPS**: All endpoints enforce HTTPS via Azure Front Door
-- ✅ **OpenID Authentication**: Login via MindX Identity Provider
-- ✅ **Protected Routes**: Frontend protected routes with authentication check
-- ✅ **API Authorization**: Backend validates OpenID tokens for protected endpoints
-- ✅ **Session Management**: HttpOnly cookies for secure token storage
-- ✅ **PKCE Flow**: Secure OAuth 2.0 authorization code flow
+### 1. Azure App Insights Integration
 
-## 🏗️ Architecture
+**Status**: ✅ **COMPLETE**
 
+**Evidence**:
+- ✅ Backend API integrated with Azure Application Insights SDK (`applicationinsights@2.7.0`)
+- ✅ Connection string configured via environment variable `APPINSIGHTS_CONNECTION_STRING`
+- ✅ Manual request tracking implemented with custom properties
+- ✅ Auto-collection enabled for dependencies, exceptions, console logs
+- ✅ Live metrics enabled for real-time monitoring
+
+**Files**:
+- `backend/src/index.ts` (lines 10-41, 104-133): App Insights initialization and request tracking
+- `backend/package.json`: `applicationinsights@2.7.0` dependency
+- `infra/k8s/backend-deployment-default.yaml`: Environment variable configuration
+
+**Implementation Details**:
+```typescript
+// App Insights initialization
+appInsights
+  .setup(process.env.APPINSIGHTS_CONNECTION_STRING)
+  .setAutoCollectRequests(false) // Manual tracking
+  .setAutoCollectDependencies(true)
+  .setAutoCollectExceptions(true)
+  .setAutoCollectConsole(true)
+  .setSendLiveMetrics(true)
+  .start();
+
+// Custom request tracking
+appInsightsClient.trackRequest({
+  name: `${req.method} ${req.url}`,
+  url: req.url,
+  duration,
+  resultCode: resultCode,
+  success: isSuccess,
+  properties: {
+    method: req.method,
+    path: req.path,
+    userAgent: req.get('user-agent'),
+    responseBody: responseBodyStr,
+  }
+});
 ```
-┌─────────────┐
-│   Browser   │
-└──────┬──────┘
-       │ HTTPS
-       ▼
-┌─────────────────────────────────────┐
-│      Azure Front Door               │
-│  (HTTPS, Routing, Load Balancing)   │
-└──────┬──────────────────┬────────────┘
-       │                  │
-       ▼                  ▼
-┌─────────────┐   ┌─────────────┐
-│  Backend    │   │  Frontend   │
-│  Service    │   │  Service    │
-│ (AKS Pods) │   │ (AKS Pods)   │
-└─────────────┘   └─────────────┘
-```
+-- Monitor traffic on the dashboard ...
 
-**Routing:**
-- `/api/*` → Backend Service
-- `/auth/*` → Backend Service  
-- `/*` → Frontend Service
+![Dashboard](./asset/dashboard.jpeg)
 
-## 🚀 Quick Start
+-- Monitor traffic on the terminal by kubectl logs -f { podname }  -n default  ...
 
-### Prerequisites
+![Terminal](./asset/tracked-in-terminal.jpeg)
 
-- Azure CLI installed and logged in
-- kubectl installed
-- Docker installed and running
-- Access to Azure resources (AKS, ACR)
+--
 
-### Deploy Everything (One Command)
+---
 
-**Windows:**
+### 2. Application Logs, Errors, and Performance Metrics Visible
+
+**Status**: ✅ **COMPLETE**
+
+**Evidence**:
+- ✅ **Request Tracking**: All API requests tracked with method, path, status code, duration, and payload
+- ✅ **Error Tracking**: Exceptions automatically collected and visible in App Insights
+- ✅ **Performance Metrics**: Request duration, dependency calls, and custom metrics tracked
+- ✅ **Console Logs**: Application console logs forwarded to App Insights
+- ✅ **Custom Properties**: User agent, timestamps, response bodies included in telemetry
+
+**Metrics Available**:
+- Request rate and response times
+- Failed request count and percentage
+- Server exceptions
+- Dependency calls (external API calls)
+- Custom events and traces
+
+**Access**: Azure Portal → Application Insights → Logs / Metrics / Live Metrics
+
+**Documentation**: See `script/week2/METRICS_DOCUMENTATION.md` for detailed access instructions
+
+-- Open Live Metric
+
+![Dashboard](./asset/live-metrics.jpeg)
+
+--
+---
+
+### 3. Alerts Setup and Tested
+
+**Status**: ✅ **COMPLETE**
+
+**Evidence**:
+- ✅ Alert rules configured via Azure CLI scripts
+- ✅ Alerts for:
+  - High error rate (>5% failed requests)
+  - High response time (>1000ms average)
+  - Server exceptions
+  - Availability issues
+- ✅ Alert actions configured (email notifications)
+- ✅ Testing scripts provided for validating alerts
+
+**Files**:
+- `script/week2/setup-alerts.ps1`: PowerShell script for Windows
+- `script/week2/setup-alerts.sh`: Bash script for Linux/Mac
+- `script/week2/test-alerts.ps1`: Script to test alert triggers
+
+**Alert Configuration**:
 ```powershell
-.\build-and-deploy.ps1
+# Example: High error rate alert
+az monitor metrics alert create \
+  --name "HighErrorRate" \
+  --resource-group mindx-dodd-rg \
+  --scopes <app-insights-resource-id> \
+  --condition "avg requests/failed > 5" \
+  --window-size 5m \
+  --evaluation-frequency 1m
 ```
 
-**Linux/Mac:**
-```bash
-chmod +x build-and-deploy.sh
-./build-and-deploy.sh
+**Documentation**: See `script/week2/METRICS_DOCUMENTATION.md` section "Alerts Configuration"
+
+-- Alert Checked
+
+![Dashboard](./asset/log-alert.jpeg)
+
+---
+
+### 4. Google Analytics Integration
+
+**Status**: ✅ **COMPLETE**
+
+**Evidence**:
+- ✅ Google Analytics script integrated in `frontend/index.html`
+- ✅ Google Tag (gtag.js) loaded asynchronously
+- ✅ Property ID: `G-0RT1VLQQBS` configured
+- ✅ Automatic page view tracking enabled
+- ✅ Ready for custom event tracking
+
+**Files**:
+- `frontend/index.html` (lines 9-16): Google Analytics integration
+- `frontend/src/gtag.d.ts`: TypeScript definitions for gtag
+
+**Implementation**:
+
+-- setup
+
+-- Set url FE into Google Analytics
+
+![Dashboard](./asset/link-to-web.jpeg)
+
+```html
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0RT1VLQQBS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-0RT1VLQQBS');
+</script>
 ```
 
-### Step by Step
+**Access**: https://analytics.google.com → Property: G-0RT1VLQQBS
 
-1. **Build and Push Images:**
-   ```powershell
-   .\build-and-push.ps1
-   ```
+-- Google Analytics check
 
-2. **Deploy to AKS:**
-   ```powershell
-   .\deploy.ps1
-   ```
+![Dashboard](./asset/FE-Dashboard.jpeg)
 
-## 📁 Project Structure
+---
 
+### 5. Key Product Metrics Tracked
+
+**Status**: ✅ **COMPLETE**
+
+**Evidence**:
+- ✅ **Page Views**: Automatically tracked by Google Analytics
+- ✅ **User Sessions**: Session tracking enabled by default
+- ✅ **Events**: Custom event tracking capability implemented
+- ✅ **User Engagement**: Time on page, bounce rate tracked
+- ✅ **Traffic Sources**: Referrer and source tracking
+
+**Metrics Tracked**:
+- Page views per route
+- User sessions and session duration
+- Active users (real-time and historical)
+- Geographic distribution
+- Device and browser information
+- Custom events (ready for implementation)
+
+**Documentation**: See `script/week2/METRICS_DOCUMENTATION.md` section "Google Analytics Metrics"
+
+**Custom Events Example** (ready for use):
+```typescript
+// Track custom events
+gtag('event', 'login', {
+  'method': 'mindx_oidc'
+});
+
+gtag('event', 'page_view', {
+  'page_title': 'Protected Page',
+  'page_location': window.location.href
+});
+```
+
+---
+
+### 6. Documentation Provided
+
+**Status**: ✅ **COMPLETE**
+
+**Evidence**:
+- ✅ **Comprehensive Documentation**: `script/week2/METRICS_DOCUMENTATION.md`
+  - Azure App Insights setup and access guide
+  - Google Analytics setup and access guide
+  - How to interpret metrics
+  - Alert configuration guide
+  - Troubleshooting section
+- ✅ **README.md**: Updated with metrics overview and quick links
+- ✅ **AC_EVALUATION.md**: This file with detailed evaluation
+- ✅ **Code Comments**: Inline documentation in source code
+
+**Documentation Sections**:
+1. Azure App Insights Overview
+2. Accessing App Insights Metrics
+3. Interpreting App Insights Data
+4. Google Analytics Overview
+5. Accessing Google Analytics
+6. Interpreting Google Analytics Data
+7. Alerts Configuration
+8. Troubleshooting
+
+**Files**:
+- `README.md`: Project overview with metrics section
+- `AC_EVALUATION.md`: This file
+- `script/week2/METRICS_DOCUMENTATION.md`: Detailed metrics guide
+
+---
+
+### 7. Configuration and Integration Scripts Committed
+
+**Status**: ✅ **COMPLETE**
+
+**Evidence**:
+- ✅ All integration code committed to repository
+- ✅ Configuration scripts for alerts provided
+- ✅ Testing scripts for alerts provided
+- ✅ Documentation committed
+
+**Scripts Provided**:
+- `script/week2/setup-alerts.ps1`: Setup Azure alerts (Windows)
+- `script/week2/setup-alerts.sh`: Setup Azure alerts (Linux/Mac)
+- `script/week2/test-alerts.ps1`: Test alert triggers (Windows)
+- `script/week2/test-alerts.sh`: Test alert triggers (Linux/Mac)
+
+**Integration Code**:
+- `backend/src/index.ts`: App Insights integration
+- `frontend/index.html`: Google Analytics integration
+- `infra/k8s/backend-deployment-default.yaml`: Environment configuration
+
+**Repository Structure**:
 ```
 Week_1/
-├── backend/                 # Backend API (Node.js/Express)
-│   ├── src/
-│   │   ├── auth/           # Authentication logic
-│   │   │   ├── config.ts   # OIDC configuration
-│   │   │   ├── routes.ts   # Auth routes (login, callback, logout)
-│   │   │   └── middleware.ts  # Token validation middleware
-│   │   └── index.ts        # Express server
-│   └── Dockerfile
-│
-├── frontend/                # Frontend (React)
-│   ├── src/
-│   │   ├── contexts/
-│   │   │   └── AuthContext.tsx  # Auth state management
-│   │   ├── components/
-│   │   │   └── ProtectedRoute.tsx  # Route protection
-│   │   ├── LoginComponent/  # Login UI
-│   │   ├── Protected_pages/ # Protected content
-│   │   └── pages/
-│   │       └── Callback.tsx  # OAuth callback handler
-│   └── Dockerfile
-│
-├── infra/                   # Infrastructure as Code
-│   ├── k8s/                # Kubernetes manifests
-│   │   ├── backend-deployment-default.yaml
-│   │   ├── frontend-deployment-default.yaml
-│   │   ├── backend-service.yaml
-│   │   └── frontend-service.yaml
-│   └── front_door/
-│       └── note.md        # Front Door configuration
-│
-├── build-and-push.ps1      # Build and push Docker images
-├── deploy.ps1              # Deploy to AKS
-├── build-and-deploy.ps1    # All-in-one script
-└── DEPLOYMENT.md           # Detailed deployment guide
+├── backend/src/index.ts          # App Insights code
+├── frontend/index.html            # Google Analytics code
+├── script/week2/
+│   ├── METRICS_DOCUMENTATION.md   # Documentation
+│   ├── setup-alerts.ps1          # Alert setup scripts
+│   ├── setup-alerts.sh
+│   ├── test-alerts.ps1
+│   └── test-alerts.sh
+├── README.md                      # Updated with metrics
+└── AC_EVALUATION.md               # This file
 ```
 
-## 🔐 Authentication Flow
+---
 
-1. User clicks "Đăng nhập với MindX" on frontend
-2. Frontend calls `/auth/login` on backend
-3. Backend generates PKCE challenge and redirects to MindX
-4. User authenticates on MindX
-5. MindX redirects to `/auth/callback` with authorization code
-6. Backend exchanges code for access token
-7. Backend sets httpOnly cookie with token
-8. Backend redirects to frontend `/auth/callback`
-9. Frontend calls `/auth/me` to get user info
-10. User is authenticated and can access protected routes
+## 📊 Summary
 
-**Detailed flow**: See [AUTHENTICATION_FLOW.md](./AUTHENTICATION_FLOW.md)
+| Criteria | Status | Evidence |
+|----------|--------|----------|
+| Azure App Insights integrated | ✅ | Backend code + package.json |
+| Logs, errors, performance visible | ✅ | App Insights dashboard accessible |
+| Alerts setup and tested | ✅ | Scripts + documentation |
+| Google Analytics integrated | ✅ | Frontend index.html |
+| Product metrics tracked | ✅ | GA dashboard accessible |
+| Documentation provided | ✅ | METRICS_DOCUMENTATION.md |
+| Scripts committed | ✅ | All files in script/week2/ |
 
-## 📚 Documentation
+**Overall Status**: ✅ **ALL CRITERIA MET**
 
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)**: Complete deployment guide
-- **[AUTHENTICATION_FLOW.md](./AUTHENTICATION_FLOW.md)**: Authentication flow details
-- **[backend/README.md](./backend/README.md)**: Backend documentation
-- **[frontend/README.md](./frontend/README.md)**: Frontend documentation
-- **[infra/front_door/note.md](./infra/front_door/note.md)**: Azure Front Door configuration
+---
 
-## 🧪 Testing
+## 🔗 Quick Links
 
-### Test Authentication
+- **Azure App Insights**: [Portal](https://portal.azure.com) → Application Insights
+- **Google Analytics**: [Dashboard](https://analytics.google.com)
+- **Documentation**: [METRICS_DOCUMENTATION.md](./script/week2/METRICS_DOCUMENTATION.md)
+- **Deployment Guide**: [DEPLOYMENT.md](./DEPLOYMENT.md)
 
-1. Visit: https://dodd-api-endpoint-a7b8hvcdc9fugjbr.z03.azurefd.net/login
-2. Click "Đăng nhập với MindX"
-3. Login with MindX credentials
-4. Should redirect to protected page
+---
 
-### Test API
+## 📝 Notes
 
-```bash
-# Health check
-curl https://dodd-api-endpoint-a7b8hvcdc9fugjbr.z03.azurefd.net/api/health
+- Frontend App Insights integration is optional per requirements (only backend required)
+- All scripts are tested and ready for use
+- Documentation includes step-by-step guides for non-technical users
+- Alert thresholds can be adjusted based on requirements
 
-# Protected endpoint (requires authentication)
-curl https://dodd-api-endpoint-a7b8hvcdc9fugjbr.z03.azurefd.net/api/protected
-```
-
-## 🔧 Configuration
-
-### Backend Environment Variables
-
-- `PORT`: Server port (default: 3000)
-- `NODE_ENV`: Environment (production/development)
-- `FRONTEND_URL`: Frontend URL for CORS and redirects
-- `OIDC_ISSUER`: MindX Identity Provider URL
-- `OIDC_CLIENT_ID`: OAuth client ID
-- `OIDC_CLIENT_SECRET`: OAuth client secret
-- `OIDC_REDIRECT_URI`: OAuth callback URL
-- `OIDC_SCOPE`: OAuth scopes
-- `SESSION_SECRET`: Session encryption secret
-
-### Frontend Environment Variables
-
-- `VITE_API_URL`: Backend API URL (set during Docker build)
-
-## 🐛 Troubleshooting
-
-See [DEPLOYMENT.md](./DEPLOYMENT.md#-troubleshooting) for common issues and solutions.
-
-## 📝 Acceptance Criteria Status
-
-- ✅ Back-end API deployed and accessible via public HTTPS endpoint
-- ✅ Front-end React web app deployed and accessible via public HTTPS domain
-- ✅ HTTPS enforced for all endpoints
-- ✅ Authentication integrated with OpenID (https://id-dev.mindx.edu.vn)
-- ✅ Users can log in and log out via front-end using OpenID
-- ✅ Authenticated users can access protected routes/pages
-- ✅ Back-end API validates and authorizes requests using OpenID token
-- ✅ All services running on Azure Cloud infrastructure
-- ✅ Deployment scripts/configs committed to repository
-- ✅ Documentation provided for setup, deployment, and authentication flow
-
-## 👥 Contributors
-
-DAO DUC DO - Week 1 Project TESTING - MindX
