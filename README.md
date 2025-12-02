@@ -87,7 +87,7 @@ appInsightsClient.trackRequest({
 
 **Access**: Azure Portal → Application Insights → Logs / Metrics / Live Metrics
 
-**Documentation**: See `script/week2/METRICS_DOCUMENTATION.md` for detailed access instructions
+**Documentation**: See `script/week2/` for detailed access instructions
 
 -- Open Live Metric
 
@@ -127,7 +127,7 @@ az monitor metrics alert create \
   --evaluation-frequency 1m
 ```
 
-**Documentation**: See `script/week2/METRICS_DOCUMENTATION.md` section "Alerts Configuration"
+**Documentation**: See `script/week2/` section "Alerts Configuration"
 
 -- Alert Checked
 
@@ -196,7 +196,7 @@ az monitor metrics alert create \
 - Device and browser information
 - Custom events (ready for implementation)
 
-**Documentation**: See `script/week2/METRICS_DOCUMENTATION.md` section "Google Analytics Metrics"
+**Documentation**: See `script/week2/` section "Google Analytics Metrics"
 
 **Custom Events Example** (ready for use):
 ```typescript
@@ -218,13 +218,13 @@ gtag('event', 'page_view', {
 **Status**: ✅ **COMPLETE**
 
 **Evidence**:
-- ✅ **Comprehensive Documentation**: `script/week2/METRICS_DOCUMENTATION.md`
+- ✅ **Comprehensive Documentation**: `script/week2/`
   - Azure App Insights setup and access guide
   - Google Analytics setup and access guide
   - How to interpret metrics
   - Alert configuration guide
   - Troubleshooting section
-- ✅ **README.md**: Updated with metrics overview and quick links
+- ✅ ****: Updated with metrics overview and quick links
 - ✅ **AC_EVALUATION.md**: This file with detailed evaluation
 - ✅ **Code Comments**: Inline documentation in source code
 
@@ -239,9 +239,9 @@ gtag('event', 'page_view', {
 8. Troubleshooting
 
 **Files**:
-- `README.md`: Project overview with metrics section
+- ``: Project overview with metrics section
 - `AC_EVALUATION.md`: This file
-- `script/week2/METRICS_DOCUMENTATION.md`: Detailed metrics guide
+- `script/week2/`: Detailed metrics guide
 
 ---
 
@@ -272,12 +272,12 @@ Week_1/
 ├── backend/src/index.ts          # App Insights code
 ├── frontend/index.html            # Google Analytics code
 ├── script/week2/
-│   ├── METRICS_DOCUMENTATION.md   # Documentation
+│   ├──    # Documentation
 │   ├── setup-alerts.ps1          # Alert setup scripts
 │   ├── setup-alerts.sh
 │   ├── test-alerts.ps1
 │   └── test-alerts.sh
-├── README.md                      # Updated with metrics
+├──                       # Updated with metrics
 └── AC_EVALUATION.md               # This file
 ```
 
@@ -292,7 +292,7 @@ Week_1/
 | Alerts setup and tested | ✅ | Scripts + documentation |
 | Google Analytics integrated | ✅ | Frontend index.html |
 | Product metrics tracked | ✅ | GA dashboard accessible |
-| Documentation provided | ✅ | METRICS_DOCUMENTATION.md |
+| Documentation provided | ✅ |  |
 | Scripts committed | ✅ | All files in script/week2/ |
 
 **Overall Status**: ✅ **ALL CRITERIA MET**
@@ -303,7 +303,7 @@ Week_1/
 
 - **Azure App Insights**: [Portal](https://portal.azure.com) → Application Insights
 - **Google Analytics**: [Dashboard](https://analytics.google.com)
-- **Documentation**: [METRICS_DOCUMENTATION.md](./script/week2/METRICS_DOCUMENTATION.md)
+- **Documentation**: [](./script/week2/)
 - **Deployment Guide**: [DEPLOYMENT.md](./DEPLOYMENT.md)
 
 ---

@@ -238,8 +238,8 @@ kubectl get svc -n default
 ## 📚 Related Documentation
 
 - **Front Door Configuration**: `infra/front_door/note.md`
-- **Backend README**: `backend/README.md`
-- **Frontend README**: `frontend/README.md`
+- **Backend README**: `backend/`
+- **Frontend README**: `frontend/`
 - **Authentication Flow**: `AUTHENTICATION_FLOW.md`
 
 ## 🔐 Security Notes

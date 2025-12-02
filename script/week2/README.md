@@ -4,7 +4,7 @@ This directory contains scripts and documentation for setting up and managing pr
 
 ## 📁 Files
 
-- **METRICS_DOCUMENTATION.md**: Comprehensive guide for accessing and interpreting metrics
+- ****: Comprehensive guide for accessing and interpreting metrics
 - **setup-alerts.ps1**: PowerShell script to configure Azure App Insights alerts (Windows)
 - **setup-alerts.sh**: Bash script to configure Azure App Insights alerts (Linux/Mac)
 - **test-alerts.ps1**: PowerShell script to test alert triggers (Windows)
@@ -59,7 +59,7 @@ The script will:
 
 ## 📚 Documentation
 
-See [METRICS_DOCUMENTATION.md](./METRICS_DOCUMENTATION.md) for:
+See [](./) for:
 - How to access Azure App Insights
 - How to access Google Analytics
 - How to interpret metrics
@@ -171,7 +171,7 @@ Alerts will send email notifications to the configured email address when:
 
 ## 🔗 Related Documentation
 
-- [Main README.md](../../README.md)
+- [Main ](../../)
 - [AC_EVALUATION.md](../../AC_EVALUATION.md)
-- [METRICS_DOCUMENTATION.md](./METRICS_DOCUMENTATION.md)
+- [](./)
 
