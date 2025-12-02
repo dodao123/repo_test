@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './Contexts/AuthContext';
-import { ProtectedRoute } from './RouteProtect/ProtectedRoute';
-import { LoginComponent } from './LoginComponent/LoginComponent';
-import { ProtectedPages } from './ProtectedPages/ProtectedPages';
-import { Callback } from './Until/Callback';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ProtectedRoute } from './route_protect/ProtectedRoute';
+import { LoginComponent } from './login_component/LoginComponent';
+import { ProtectedPages } from './protected_pages/ProtectedPages';
+import { Callback } from './utils/Callback';
 import './App.css';
 
 function Home() {
