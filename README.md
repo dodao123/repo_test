@@ -103,10 +103,7 @@ appInsightsClient.trackRequest({
 **Evidence**:
 - ✅ Alert rules configured via Azure CLI scripts
 - ✅ Alerts for:
-  - High error rate (>5% failed requests)
-  - High response time (>1000ms average)
-  - Server exceptions
-  - Availability issues
+   - All requests with a status code other than 200 & 302
 - ✅ Alert actions configured (email notifications)
 - ✅ Testing scripts provided for validating alerts
 
