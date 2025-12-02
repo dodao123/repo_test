@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../Contexts/AuthContext';
 import { API_URL } from '../config';
 
 export const Callback = () => {
@@ -34,11 +34,55 @@ export const Callback = () => {
         try {
           const response = await fetch(`${API_URL}/auth/me`, {
             credentials: 'include', // Include cookies
+            cache: 'no-store', // Prevent caching
+            headers: {
+              'Cache-Control': 'no-cache',
+              'Pragma': 'no-cache',
+            },
           });
           
-          if (response.ok) {
-            const data = await response.json();
-            const user = data.user;
+          // Handle both 200 OK and 304 Not Modified
+          if (response.ok || response.status === 304) {
+            let data;
+            try {
+              data = await response.json();
+            } catch (jsonError) {
+              // If 304 and no body, try to get from localStorage or retry
+              const cachedUser = localStorage.getItem('user');
+              if (cachedUser) {
+                try {
+                  const parsedUser = JSON.parse(cachedUser);
+                  if (parsedUser && parsedUser.sub) {
+                    console.log('Using cached user data:', parsedUser);
+                    setAuthData('cookie', parsedUser);
+                    setStatus('Authentication successful! Redirecting...');
+                    setTimeout(() => {
+                      navigate('/protected', { replace: true });
+                    }, 500);
+                    return;
+                  }
+                } catch (parseError) {
+                  console.warn('Failed to parse cached user:', parseError);
+                }
+              }
+              
+              // Retry with no-cache headers
+              console.warn('304 response with no body, retrying...');
+              const retryResponse = await fetch(`${API_URL}/auth/me`, {
+                credentials: 'include',
+                cache: 'no-store',
+                headers: {
+                  'Cache-Control': 'no-cache',
+                  'Pragma': 'no-cache',
+                },
+              });
+              if (!retryResponse.ok && retryResponse.status !== 304) {
+                throw new Error('Failed to fetch user info after retry');
+              }
+              data = await retryResponse.json();
+            }
+            
+            const user = data?.user;
             
             // Ensure user has at least sub
             if (!user || !user.sub) {
@@ -54,7 +98,7 @@ export const Callback = () => {
               navigate('/protected', { replace: true });
             }, 500);
           } else {
-            throw new Error('Failed to fetch user info');
+            throw new Error(`Failed to fetch user info: ${response.status}`);
           }
         } catch (fetchError) {
           console.error('Failed to fetch user info:', fetchError);

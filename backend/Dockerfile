@@ -7,8 +7,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY tsconfig.json ./
 
-# Install dependencies
-RUN bun install --frozen-lockfile
+# Install dependencies (allow lockfile updates for new packages)
+RUN bun install
 
 # Copy source code
 COPY . .
@@ -21,11 +21,12 @@ FROM oven/bun:alpine
 
 WORKDIR /app
 
-# Copy package files for production dependencies only
-COPY package*.json ./
+  # Copy only package.json (not package-lock.json to avoid lockfile migration issues)
+COPY package.json ./
 
 # Install only production dependencies
-RUN bun install --frozen-lockfile --production
+# Bun will create its own lockfile without migration issues
+RUN bun install --production
 
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist

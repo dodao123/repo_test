@@ -1,12 +1,34 @@
-import { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../Contexts/AuthContext';
 import './LoginComponent.css';
 
 export const LoginComponent = () => {
-  const { login } = useAuth();
+  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Check if already authenticated - redirect to protected
+  useEffect(() => {
+    const error = searchParams.get('error');
+    console.log('[LoginComponent] isAuthenticated:', isAuthenticated, 'authLoading:', authLoading, 'error:', error);
+    
+    // If already authenticated, redirect to protected regardless of error param
+    if (!authLoading && isAuthenticated) {
+      console.log('[LoginComponent] Already authenticated, redirecting to /protected');
+      navigate('/protected', { replace: true });
+    }
+  }, [isAuthenticated, authLoading, navigate, searchParams]);
 
   const handleLogin = async () => {
+    // If already authenticated, redirect to protected instead of starting login flow
+    if (isAuthenticated) {
+      console.log('[LoginComponent] Already authenticated, navigating to /protected');
+      navigate('/protected', { replace: true });
+      return;
+    }
+
     setIsLoading(true);
     try {
       await login();
@@ -15,6 +37,17 @@ export const LoginComponent = () => {
       setIsLoading(false);
     }
   };
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="login-container">
+        <div className="login-card">
+          <p>Đang kiểm tra đăng nhập...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="login-container">

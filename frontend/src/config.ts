@@ -1,6 +1,5 @@
 // API Configuration
+// In production, use relative URLs - Front Door routes /auth/* and /api/* to backend
 // In development, use relative URLs (proxied by Vite)
-// In production, use full URL from env
-export const API_URL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.DEV ? '' : 'http://localhost:3000');
+export const API_URL = import.meta.env.VITE_API_URL || '';
 

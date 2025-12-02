@@ -1,13 +1,15 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import { AuthProvider, useAuth } from './Contexts/AuthContext';
+import { ProtectedRoute } from './RouteProtect/ProtectedRoute';
 import { LoginComponent } from './LoginComponent/LoginComponent';
 import { ProtectedPages } from './Protected_pages/ProtectedPages';
-import { Callback } from './pages/Callback';
+import { Callback } from './auth/Callback';
 import './App.css';
 
 function Home() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
+  
+  console.log('[Home] Rendered - isAuthenticated:', isAuthenticated, 'isLoading:', isLoading, 'user:', user?.sub || 'none');
   
   return (
     <>
@@ -34,7 +36,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<LoginComponent />} />
-      <Route path="/auth/callback" element={<Callback />} />
+      <Route path="/callback" element={<Callback />} />
       <Route
         path="/protected"
         element={

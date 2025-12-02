@@ -118,6 +118,7 @@ kubectl create secret generic backend-env \
   --from-literal=OIDC_REDIRECT_URI=$FRONTEND_URL/auth/callback \
   --from-literal=OIDC_SCOPE="openid profile email" \
   --from-literal=SESSION_SECRET=supersecret_123_abc_xyz \
+  --from-literal=APPINSIGHTS_CONNECTION_STRING="InstrumentationKey=a85d2b13-8cbd-443f-ace5-011141e809b5;IngestionEndpoint=https://southeastasia-1.in.applicationinsights.azure.com/;LiveEndpoint=https://southeastasia.livediagnostics.monitor.azure.com/;ApplicationId=45ee7616-f5a8-4f37-b75d-9edd37761a63" \
   --namespace=$NAMESPACE \
   --dry-run=client -o yaml | kubectl apply -f -
 

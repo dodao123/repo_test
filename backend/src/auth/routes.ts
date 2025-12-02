@@ -139,7 +139,30 @@ router.get('/login', async (req: Request, res: Response) => {
       console.error('Error stack:', error.stack);
     }
     console.error('========== LOGIN ERROR END ==========\n');
-    res.status(500).json({ error: 'Failed to initiate login' });
+    
+    // Check if error is due to auth server being unavailable
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isAuthServerDown = 
+      errorMessage.includes('unexpected HTTP response status code') ||
+      errorMessage.includes('OAUTH_RESPONSE_IS_NOT_CONFORM') ||
+      errorMessage.includes('404') ||
+      errorMessage.includes('503');
+    
+    if (isAuthServerDown) {
+      // Auth server is down or discovery endpoint not available
+      res.status(503).json({ 
+        error: 'Authentication service is currently unavailable',
+        details: 'The authentication server (https://id-dev.mindx.edu.vn) is not responding. Please try again later.',
+        code: 'AUTH_SERVER_UNAVAILABLE'
+      });
+    } else {
+      // Other errors
+      res.status(500).json({ 
+        error: 'Failed to initiate login',
+        details: errorMessage,
+        code: 'LOGIN_ERROR'
+      });
+    }
   }
 });
 
@@ -191,8 +214,20 @@ router.get('/callback', async (req: Request, res: Response) => {
 
     if (!code) {
       console.error('[2/8] ✗ Authorization code missing');
-      console.log('========== CALLBACK REQUEST END (ERROR) ==========\n');
-      return res.redirect(`${authConfig.frontendUrl}/login?error=code_missing`);
+      
+      // Check if user already has a valid access token (already authenticated)
+      const existingToken = req.cookies?.accessToken;
+      if (existingToken) {
+        console.log('[2/8] User already has accessToken cookie, redirecting to /protected');
+        console.log('========== CALLBACK REQUEST END (ALREADY AUTHENTICATED) ==========\n');
+        return res.redirect(`${authConfig.frontendUrl}/protected`);
+      }
+      
+      // No code and no existing token - redirect to protected anyway
+      // Frontend will handle auth check
+      console.log('[2/8] No code but redirecting to /protected - frontend will verify auth');
+      console.log('========== CALLBACK REQUEST END (NO CODE) ==========\n');
+      return res.redirect(`${authConfig.frontendUrl}/protected`);
     }
 
     console.log('[3/8] Retrieving code verifier from memory store...');
@@ -457,11 +492,13 @@ router.get('/callback', async (req: Request, res: Response) => {
     console.log('[7/8]   Set-Cookie header:', setCookieHeader);
 
     console.log('[8/8] Preparing redirect to frontend...');
-    // Redirect without token in URL for security
-    const redirectUrl = `${authConfig.frontendUrl}/auth/callback`;
+    // Redirect to frontend callback route (using /callback instead of /auth/callback
+    // to avoid Azure Front Door routing conflict - AFD routes /auth/* to backend)
+    const redirectUrl = `${authConfig.frontendUrl}/callback`;
     console.log('[8/8] ✓ Redirect URL prepared');
     console.log('[8/8]   Frontend URL:', authConfig.frontendUrl);
     console.log('[8/8]   Redirect URL:', redirectUrl);
+    console.log('[8/8]   Note: Using /callback to avoid Azure Front Door routing /auth/* to backend');
 
     console.log('[9/9] Redirecting to frontend...');
     console.log('[9/9] ✓ Callback completed successfully');

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: mindxweek1acr.azurecr.io/backend:v3  # Đổi từ week1-backend → backend
+          image: mindxweek1acr.azurecr.io/backend:v7  # Added cache-control headers for API routes
           imagePullPolicy: Always  # Đổi từ IfNotPresent
           ports:
             - containerPort: 3000

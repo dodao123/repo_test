@@ -4,6 +4,11 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  build: {
+    // Keep console.log in production for debugging
+    // Vite doesn't remove console.log by default, so we don't need special config
+    minify: 'esbuild', // Use esbuild (faster) instead of terser
+  },
   server: {
     port: 5173,
     proxy: {
