@@ -3,7 +3,7 @@ import { AuthProvider, useAuth } from './Contexts/AuthContext';
 import { ProtectedRoute } from './RouteProtect/ProtectedRoute';
 import { LoginComponent } from './LoginComponent/LoginComponent';
 import { ProtectedPages } from './ProtectedPages/ProtectedPages';
-import { Callback } from './Auth/Callback';
+import { Callback } from './Until/Callback';
 import './App.css';
 
 function Home() {
