@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { API_URL } from '../config';
+import { API_URL } from '../../config';
 
 interface User {
   sub: string;
@@ -29,16 +29,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     console.log('[AuthContext] useEffect triggered - checking auth');
     console.log('[AuthContext] Current URL:', window.location.href);
-    
+
     // Check for stored auth data on mount from cookies
     const checkAuth = async () => {
       console.log('[AuthContext] checkAuth started');
-      
+
       // First, try to load from localStorage immediately (synchronous)
       // This ensures user is set before any component renders
       const cachedUser = localStorage.getItem('user');
       console.log('[AuthContext] Cached user in localStorage:', cachedUser ? 'EXISTS' : 'NONE');
-      
+
       if (cachedUser) {
         try {
           const parsedUser = JSON.parse(cachedUser);
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           cache: 'no-cache', // Prevent 304 for auth check
         });
         console.log('[AuthContext] /auth/me response status:', response.status);
-        
+
         if (response.ok) {
           // Handle 304 Not Modified - user data already set from localStorage above
           if (response.status === 304) {
@@ -70,10 +70,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             // User data should already be set from localStorage above
           } else {
             // Normal response, parse JSON
-          const data = await response.json();
+            const data = await response.json();
             if (data.user) {
               console.log('[AuthContext] User loaded from API:', data.user.sub || data.user.email);
-          setUser(data.user);
+              setUser(data.user);
               setAccessToken('cookie');
               // Update localStorage cache
               localStorage.setItem('user', JSON.stringify(data.user));
@@ -97,8 +97,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (!cachedUser) {
           // Only clear if no cache available
           console.warn('[AuthContext] No cached data, clearing auth');
-        setUser(null);
-        setAccessToken(null);
+          setUser(null);
+          setAccessToken(null);
         } else {
           console.log('[AuthContext] Keeping cached user data after error');
         }
@@ -116,7 +116,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         credentials: 'include',
       });
       const data = await response.json();
-      
+
       if (data.authUrl) {
         window.location.href = data.authUrl;
       }

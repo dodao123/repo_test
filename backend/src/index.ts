@@ -5,6 +5,7 @@ import cors from 'cors';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import authRoutes from './auth/routes.js';
+import todoRoutes from './interfaces/todo-routes.js';
 import { authenticateToken, AuthRequest } from './auth/middleware.js';
 
 // ================== INIT APP INSIGHTS FIRST ==================
@@ -24,12 +25,12 @@ if (process.env.APPINSIGHTS_CONNECTION_STRING) {
       .start();
 
     appInsightsClient = appInsights.defaultClient;
-    
+
     // Enable verbose logging for debugging
     if (appInsightsClient) {
       appInsightsClient.config.enableLogger = true;
     }
-    
+
     console.log('✅ Azure Application Insights initialized (v2.7.0)');
     console.log('✅ DefaultClient available:', !!appInsightsClient);
     console.log('✅ Connection String:', process.env.APPINSIGHTS_CONNECTION_STRING.substring(0, 50) + '...');
@@ -70,13 +71,13 @@ app.use((req: Request, res: Response, next) => {
   // Capture response body
   const originalSend = res.send;
   const originalJson = res.json;
-  
-  res.send = function(body: any) {
+
+  res.send = function (body: any) {
     responseBody = body;
     return originalSend.call(this, body);
   };
-  
-  res.json = function(body: any) {
+
+  res.json = function (body: any) {
     responseBody = JSON.stringify(body);
     return originalJson.call(this, body);
   };
@@ -85,22 +86,23 @@ app.use((req: Request, res: Response, next) => {
     const duration = Date.now() - start;
     const resultCode = res.statusCode;
     const isSuccess = resultCode < 400;
-    
+
     // Format response body for logging (truncate if too long)
     let responseBodyStr = '';
-    if (responseBody !== null) {
-      if (typeof responseBody === 'string') {
-        responseBodyStr = responseBody.length > 200 
-          ? responseBody.substring(0, 200) + '...' 
-          : responseBody;
-      } else {
-        responseBodyStr = JSON.stringify(responseBody);
-        if (responseBodyStr.length > 200) {
-          responseBodyStr = responseBodyStr.substring(0, 200) + '...';
-        }
+
+    if (responseBody !== undefined && responseBody !== null) {
+      try {
+        const raw = typeof responseBody === 'string'
+          ? responseBody
+          : JSON.stringify(responseBody) ?? '';
+
+        responseBodyStr = raw.length > 200 ? raw.slice(0, 200) + '...' : raw;
+      } catch {
+        responseBodyStr = '[unstringifiable response]';
       }
     }
-    
+
+
     if (appInsightsClient) {
       try {
         // Track request with custom properties
@@ -118,10 +120,10 @@ app.use((req: Request, res: Response, next) => {
             responseBody: responseBodyStr,
           }
         });
-        
+
         // Flush ALL telemetry immediately to ensure it's sent
         appInsightsClient.flush();
-        
+
         const payloadInfo = responseBodyStr ? ` [payload: ${responseBodyStr}]` : '';
         console.log(`[${timestamp}] [AppInsight] Tracked : ${req.method} - ${req.path || req.url} - ${resultCode}(${duration}ms)${payloadInfo}`);
       } catch (error) {
@@ -147,7 +149,7 @@ app.use(session({
   secret: sessionSecret,
   resave: false,
   saveUninitialized: false,
-  cookie: { 
+  cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     sameSite: 'lax',
@@ -167,24 +169,25 @@ app.use((req: Request, res: Response, next) => {
 
 // Health check
 app.get('/api/health', (req: Request, res: Response) => {
-    res.status(200).send('ok');
+  res.status(200).send('ok');
 });
 
 app.get('/api/hello', (req: Request, res: Response) => {
-    res.send('hello world');
+  res.send('hello world');
 });
 
 // Auth
 app.use('/auth', authRoutes);
+app.use('/api/todos', todoRoutes);
 
 // Protected
 app.get('/api/protected', authenticateToken, (req: AuthRequest, res: Response) => {
-    res.json({ 
-        message: 'This is protected content',
-        user: req.user 
-    });
+  res.json({
+    message: 'This is protected content',
+    user: req.user
+  });
 });
 
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on port ${port}`);
 });
